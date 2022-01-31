@@ -1,5 +1,5 @@
 import React from "react";
-import data from "../src/users.json";
+import users from "../src/users.json";
 import UserInfo from "./components/UserInfo.js";
 import Counter from "./components/Counter.js";
 import "./styles/global.css";
@@ -7,65 +7,57 @@ import "./styles/global.css";
 class App extends React.Component {
   constructor() {
     super();
+
     this.state = {
+      // on peut supprimer la clé et remplacer directement par users
+      users: users,
       count: 10,
     };
+    // si pas mention de ces 2 lignes ci-dessous faisant explicitement référence à this, on ne va pas pouvoir utiliser les fonctions increment et substract, et dans la console, message indiquant que le propriétés du composant Counter sont "undefined"
+    this.increment = this.increment.bind(this);
+    this.substract = this.substract.bind(this);
+  }
+
+  increment() {
+    this.setState((prevState) => {
+      return {
+        count: prevState.count + 1,
+      };
+    });
+  }
+
+  substract() {
+    this.setState((prevState) => {
+      return {
+        count: prevState.count - 1,
+      };
+    });
   }
 
   render() {
     return (
       <div>
-        <h2>Counter</h2>
-
-        {/* Counter */}
         <Counter
           count={this.state.count}
-          substract={() => {
-            if (this.state.count > 0) {
-              this.setState((prevState) => {
-                return {
-                  count: prevState.count - 1,
-                };
-              });
-            }
-          }}
-          // substract={() => {
-          //   if (this.state.count > 0) {
-          //     this.setState({ count: this.state.count - 1 });
-          //   }
-          // }}
-          increment={() => {
-            this.setState((prevState) => {
-              return {
-                count: prevState.count + 1,
-              };
-            });
-          }}
+          increment={this.increment} // on appelle la fonction increment
+          substract={this.substract} // on appelle la fonction substract
         />
-        {/* increment={() => {
-        this.setState({ count: this.state.count + 1 });
-         }} */}
 
-        {/* User's info */}
-        {data
-          .map((user) => (
-            <UserInfo
-              name={user.name}
-              email={user.email}
-              website={user.website}
-            />
-          ))
-          .slice(0, this.state.count)}
+        {/* Data extracted from users list */}
 
-        {/* {data
-          .map((user) => (
-            <UserInfo
-              name={user.name}
-              email={user.email}
-              website={user.website}
-            />
-          ))
-          .slice(0, this.state.count)} */}
+        {this.state.users.map((user, i) => {
+          if (i === 0 || i < this.state.count) {
+            return (
+              <UserInfo
+                key={user.email} // si pas mention de la clé, affichage d'un message d'erreur dans la console du navigateur => requis de React : chaque enfant dans une liste doit avoir une propriété clé unique
+                name={user.name}
+                email={user.email}
+                website={user.website}
+              />
+            );
+          }
+          return null;
+        })}
       </div>
     );
   }
